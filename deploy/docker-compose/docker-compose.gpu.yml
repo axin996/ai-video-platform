@@ -1,0 +1,28 @@
+# GPU-specific overrides for docker-compose.yml
+# Usage: docker compose -f docker-compose.yml -f deploy/docker-compose/docker-compose.gpu.yml up
+version: "3.9"
+
+services:
+  celery-gpu-worker:
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              device_ids: ["0"]
+              capabilities: [gpu]
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=0
+      - CUDA_VISIBLE_DEVICES=0
+
+  cosyvoice:
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              device_ids: ["0"]
+              capabilities: [gpu]
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=0
+      - CUDA_VISIBLE_DEVICES=0

@@ -1,0 +1,39 @@
+FROM nvidia/cuda:12.4.0-cudnn-devel-ubuntu22.04
+
+WORKDIR /app
+
+# System dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3.12 \
+    python3-pip \
+    ffmpeg \
+    yt-dlp \
+    curl \
+    && rm -rf /var/lib/apt/lists/* \
+    && ln -s /usr/bin/python3.12 /usr/bin/python
+
+RUN pip install --no-cache-dir --upgrade pip
+
+# Python AI dependencies (GPU versions)
+RUN pip install --no-cache-dir \
+    torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu124 \
+    faster-whisper \
+    celery[redis] \
+    redis \
+    httpx \
+    requests \
+    openai \
+    pydantic pydantic-settings \
+    sqlalchemy[asyncio] asyncpg \
+    minio \
+    loguru \
+    tenacity
+
+# Application code
+COPY workers/ /app/workers/
+COPY backend/app/models/ /app/backend/app/models/
+COPY backend/app/core/config.py /app/backend/app/core/
+
+ENV PYTHONPATH=/app
+ENV NVIDIA_VISIBLE_DEVICES=0
+ENV CUDA_VISIBLE_DEVICES=0

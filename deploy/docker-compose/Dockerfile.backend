@@ -1,0 +1,21 @@
+# FastAPI Backend Dockerfile
+FROM python:3.12-slim
+
+WORKDIR /app
+
+# System dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ffmpeg \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Python dependencies
+COPY backend/requirements.txt /app/requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Application code (mounted as volume in dev, copied in prod)
+COPY backend/ /app/
+COPY workers/ /workers/
+
+ENV PYTHONPATH=/app:/workers
+EXPOSE 8000
